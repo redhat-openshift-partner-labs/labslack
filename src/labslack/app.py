@@ -59,9 +59,30 @@ def create_app(config: Config | None = None) -> tuple[App, web.Application]:
 def main() -> None:
     """Run the application."""
     load_dotenv()
-    config = Config.from_env()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+
+    try:
+        config = Config.from_env()
+    except KeyError as e:
+        logger.error(f"Missing required environment variable: {e}")
+        logger.error("Required: SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET")
+        logger.error("Optional: RELAY_CHANNEL_ID, WEBHOOK_API_KEY")
+        raise SystemExit(1)
 
     bolt_app, aiohttp_app = create_app(config)
+
+    logger.info(f"Starting LabSlack bot on {config.host}:{config.port}")
+    logger.info(f"Slack events endpoint: http://{config.host}:{config.port}/slack/events")
+    logger.info(f"Webhook endpoint: http://{config.host}:{config.port}/webhook")
+    logger.info(f"Health check: http://{config.host}:{config.port}/health")
+
+    if not config.relay_channel_id:
+        logger.warning("RELAY_CHANNEL_ID not set - bot will start but cannot relay messages")
 
     # Run aiohttp server
     web.run_app(aiohttp_app, host=config.host, port=config.port)

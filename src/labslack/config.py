@@ -13,7 +13,7 @@ class Config:
 
     slack_bot_token: str
     slack_signing_secret: str
-    relay_channel_id: str
+    relay_channel_id: str | None = None  # Optional for initial URL verification
     include_metadata: bool = True
     webhook_api_key: str | None = None
     host: str = "0.0.0.0"
@@ -26,7 +26,7 @@ class Config:
         return cls(
             slack_bot_token=os.environ["SLACK_BOT_TOKEN"],
             slack_signing_secret=os.environ["SLACK_SIGNING_SECRET"],
-            relay_channel_id=os.environ["RELAY_CHANNEL_ID"],
+            relay_channel_id=os.getenv("RELAY_CHANNEL_ID"),  # Now optional
             include_metadata=os.getenv("INCLUDE_METADATA", "true").lower() == "true",
             webhook_api_key=os.getenv("WEBHOOK_API_KEY"),
             host=os.getenv("HOST", "0.0.0.0"),

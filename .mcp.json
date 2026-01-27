@@ -1,0 +1,50 @@
+{
+  "mcpServers": {
+    "sequentialthinking": {
+      "type": "stdio",
+      "command": "pnpx",
+      "args": [
+        "@modelcontextprotocol/server-sequential-thinking@latest"
+      ]
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "claude-code",
+        "--project",
+        "${PWD}"
+      ]
+    },
+    "playwright": {
+      "command": "pnpx",
+      "type": "stdio",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "slackdocs": {
+      "command": "uvx",
+      "type": "stdio",
+      "args": [
+        "--from",
+        "git+https://github.com/langchain-ai/mcpdoc",
+        "mcpdoc",
+        "--urls",
+        "Slack:file:///home/mrhillsman/Development/misc/llms-txt/slack.md",
+        "--allowed-domains",
+        "file://",
+        "--transport",
+        "stdio",
+        "--port",
+        "8118",
+        "--host",
+        "localhost"
+      ]
+    }
+  }
+}
