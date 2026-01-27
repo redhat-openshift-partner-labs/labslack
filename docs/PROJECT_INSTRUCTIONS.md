@@ -141,6 +141,12 @@ refactor: code refactoring
 chore: maintenance tasks
 ```
 
+## Git Policy
+- **NEVER push to remote** - The user will handle all pushes manually
+- **DO make frequent incremental commits** - Small, focused commits for easy rollback
+- Use conventional commit messages
+- Each commit should be atomic and self-contained
+
 ## Running the Bot
 
 ### Development (with ngrok)
