@@ -75,7 +75,7 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
         """Handle Slack events via aiohttp."""
         bolt_request = await to_bolt_request(request)
         bolt_response = await bolt_app.async_dispatch(bolt_request)
-        return to_aiohttp_response(bolt_response)
+        return await to_aiohttp_response(bolt_response)
 
     aiohttp_app.router.add_post("/slack/events", handle_slack_events)
 
