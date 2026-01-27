@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/YOUR_USERNAME/labslack/blob/main/docs/PROJECT_INSTRUCTIONS.md
+    about: Check the project documentation before opening an issue
+  - name: Development Plan
+    url: https://github.com/YOUR_USERNAME/labslack/blob/main/docs/DEVELOPMENT_PLAN.md
+    about: See what features are already planned
+  - name: Slack Bolt Documentation
+    url: https://docs.slack.dev/tools/bolt-python/
+    about: Official Slack Bolt for Python documentation

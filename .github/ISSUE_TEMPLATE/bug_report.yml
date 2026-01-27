@@ -1,0 +1,151 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in LabSlack
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        Thank you for reporting a bug! Please fill out the sections below to help us investigate.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: A brief description of the bug
+      placeholder: "e.g., Webhook returns 500 when message contains special characters"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of LabSlack is affected?
+      options:
+        - DM Relay
+        - Webhook Relay
+        - Message Formatting
+        - Configuration/Startup
+        - Health Check
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Low - Minor issue, cosmetic, or has easy workaround
+        - Medium - Affects functionality but has workaround
+        - High - Significantly impacts functionality
+        - Critical - Bot is unusable or crashes
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: What is happening now?
+      placeholder: Describe the bug in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen instead?
+      placeholder: Describe what you expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Paste any relevant error messages or logs
+      placeholder: Paste logs here...
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: LabSlack Version
+      description: Which version are you using?
+      placeholder: "e.g., 0.1.0 or commit hash"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: Output of `python --version`
+      placeholder: "e.g., Python 3.12.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Docker
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Any other relevant environment information
+      placeholder: |
+        - Deployment method (local, Docker, cloud)
+        - ngrok version (if applicable)
+        - Any relevant Slack app configuration
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might help
+      placeholder: Screenshots, related issues, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have checked the [Troubleshooting section](README.md#troubleshooting) in the README
+          required: true
+        - label: I can reproduce this bug consistently
+          required: false

@@ -1,0 +1,158 @@
+name: Feature Request
+description: Propose a new feature or enhancement for LabSlack
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Thank you for taking the time to propose a new feature! Please fill out the sections below to help us understand your request.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: A brief, one-line summary of the feature
+      placeholder: "e.g., Add message filtering by keywords"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-area
+    attributes:
+      label: Feature Area
+      description: Which part of LabSlack does this relate to?
+      options:
+        - DM Relay
+        - Webhook Relay
+        - Message Formatting
+        - Configuration
+        - Deployment
+        - Documentation
+        - Testing
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Nice to have
+        - Important
+        - Critical - blocking my use case
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: |
+        Currently, [describe current behavior]...
+
+        This is a problem because [explain impact]...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature working?
+      placeholder: |
+        I would like to be able to [describe desired behavior]...
+
+        This could work by [technical approach if known]...
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story (BDD Format)
+      description: Describe the feature using Given/When/Then format
+      value: |
+        As a [type of user],
+        I want [goal/desire],
+        So that [benefit/value].
+
+        Scenario: [Scenario Name]
+          Given [precondition]
+          When [action]
+          Then [expected result]
+      render: gherkin
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: |
+        1. Alternative approach and why it doesn't fully solve the problem
+        2. Current workaround (if any)
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this feature is complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Unit tests passing
+        - [ ] Documentation updated
+    validations:
+      required: false
+
+  - type: dropdown
+    id: breaking-change
+    attributes:
+      label: Breaking Change
+      description: Would this feature require breaking changes to existing functionality?
+      options:
+        - "No"
+        - "Yes"
+        - "Not sure"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or references
+      placeholder: Links to related issues, documentation, examples, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you interested in contributing to this feature?
+      options:
+        - label: I'm willing to submit a PR for this feature
+        - label: I can help with testing
+        - label: I can help with documentation
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our project guidelines
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have read the [Development Plan](docs/DEVELOPMENT_PLAN.md) to check if this is already planned
+          required: true
