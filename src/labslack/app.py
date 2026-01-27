@@ -57,7 +57,7 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
         logger.info(f"Received DM from {user_id}: {text[:50]}...")
 
         if config.relay_channel_id:
-            relay.relay_dm(
+            await relay.relay_dm(
                 text=text,
                 user_id=user_id,
                 timestamp=timestamp,

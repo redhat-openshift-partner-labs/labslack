@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slack_sdk import WebClient
+    from slack_sdk.web.async_client import AsyncWebClient
 
     from labslack.config import Config
     from labslack.formatters.message_formatter import MessageFormatter
@@ -17,14 +17,14 @@ class MessageRelay:
     def __init__(
         self,
         config: Config,
-        client: WebClient,
+        client: AsyncWebClient,
         formatter: MessageFormatter,
     ) -> None:
         self.config = config
         self.client = client
         self.formatter = formatter
 
-    def relay_dm(
+    async def relay_dm(
         self,
         text: str,
         user_id: str | None = None,
@@ -36,7 +36,7 @@ class MessageRelay:
             user_id=user_id,
             timestamp=timestamp,
         )
-        self._send_message(formatted)
+        await self._send_message(formatted)
 
     async def relay_webhook(
         self,
@@ -50,11 +50,11 @@ class MessageRelay:
             source=source,
             metadata=metadata,
         )
-        self._send_message(formatted)
+        await self._send_message(formatted)
 
-    def _send_message(self, text: str) -> None:
+    async def _send_message(self, text: str) -> None:
         """Send a message to the relay channel."""
-        self.client.chat_postMessage(
+        await self.client.chat_postMessage(
             channel=self.config.relay_channel_id,
             text=text,
         )
