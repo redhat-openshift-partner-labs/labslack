@@ -82,4 +82,5 @@ class MessageFormatter:
         """Truncate message to Slack's limit with indicator."""
         if len(text) <= MAX_MESSAGE_LENGTH:
             return text
-        return text[: MAX_MESSAGE_LENGTH - 20] + "\n\n_[Message truncated]_"
+        truncation_suffix = "\n\n_[Message truncated]_"
+        return text[: MAX_MESSAGE_LENGTH - len(truncation_suffix)] + truncation_suffix
