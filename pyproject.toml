@@ -12,6 +12,7 @@ dependencies = [
     "aiohttp>=3.13.3",
     "slack-bolt>=1.27.0",
     "python-dotenv>=1.0.0",
+    "requests>=2.32.5",
 ]
 
 [project.optional-dependencies]
