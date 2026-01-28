@@ -39,6 +39,8 @@ A Slack bot that listens for messages (DMs and external webhooks) and relays the
 src/labslack/
 ├── app.py              # Main AsyncApp + aiohttp server
 ├── config.py           # Configuration from environment
+├── logging.py          # Structured JSON logging
+├── metrics.py          # Observability metrics (Counter, Gauge, Histogram)
 ├── handlers/           # Webhook handler
 ├── relay/              # Async message relay
 └── formatters/         # Message formatting
@@ -57,15 +59,17 @@ tests/
 - WEBHOOK_API_KEY (optional)
 - INCLUDE_METADATA (default: true)
 - HOST, PORT, LOG_LEVEL (optional)
+- LOG_JSON (default: true, set to false for human-readable logs)
 - MAX_RETRIES, RETRY_BASE_DELAY (optional, for error retry)
 
 ## API Endpoints
 - POST /slack/events - Slack events
 - POST /webhook - External messages
 - GET /health - Health check
+- GET /metrics - Observability metrics (JSON)
 
 ## Development Phases
-- Phases 1-6: Complete (setup, formatter, handlers, relay with error handling, integration)
+- Phases 1-6: Complete (setup, formatter, handlers, relay with error handling, integration, structured logging, metrics)
 - Phase 7: In Progress (documentation)
 - Phase 8-10: Planned (hardening, deployment, enhanced features)
 

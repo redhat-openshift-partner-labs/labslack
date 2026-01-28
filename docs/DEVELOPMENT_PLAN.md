@@ -108,10 +108,15 @@ This document tracks the phased development of the LabSlack bot, following TDD/B
 - [x] Add health check endpoint
 - [x] Write integration tests
 - [x] Manual test script (`scripts/test_relay.py`)
+- [x] Add structured logging (JSON format with contextual fields)
+- [x] Add metrics/observability hooks (counters, gauges, histograms)
 
-### Remaining Tasks:
-- [ ] Add structured logging
-- [ ] Add metrics/observability hooks
+### Key Features:
+- **Structured Logging**: JSON-formatted logs with contextual fields (user_id, source, error_code, etc.)
+- **Configurable Format**: `LOG_JSON=true/false` environment variable
+- **Metrics Module**: Counter, Gauge, Histogram metric types with label support
+- **Metrics Endpoint**: GET `/metrics` returns all metrics as JSON
+- **Relay Metrics**: Tracks messages relayed, retries, and errors by source
 
 ---
 
