@@ -14,6 +14,7 @@ A Slack bot that listens for messages (DMs and external webhooks) and relays the
 - **DM Relay**: Working
 - **Webhook Relay**: Working with API key authentication
 - **Health Check**: Available at `/health`
+- **Error Handling**: Automatic retry with exponential backoff for transient Slack API errors
 
 ## Development Approach
 - **TDD**: Test-Driven Development - write tests first, then implementation
@@ -110,6 +111,8 @@ Navigate to **Event Subscriptions**:
 | `HOST` | No | Server host (default: `0.0.0.0`) |
 | `PORT` | No | Server port (default: `3000`) |
 | `LOG_LEVEL` | No | Logging level (default: `INFO`) |
+| `MAX_RETRIES` | No | Max retry attempts for Slack API errors (default: `3`) |
+| `RETRY_BASE_DELAY` | No | Base delay in seconds for exponential backoff (default: `1.0`) |
 
 *Can be omitted for initial URL verification, but required for message relay.
 
@@ -190,3 +193,19 @@ uv run python scripts/test_relay.py dm "Direct test"
 ### Webhook Returns 401
 - Verify `X-API-Key` header matches `WEBHOOK_API_KEY`
 - Ensure API key is set in environment
+
+### Slack API Errors
+The message relay service automatically handles Slack API errors:
+
+**Retryable errors** (automatic retry with exponential backoff):
+- `rate_limited` - Respects `Retry-After` header
+- `service_unavailable`
+- `request_timeout`
+- `internal_error`
+
+**Non-retryable errors** (immediate failure, logged):
+- `channel_not_found` - Check `RELAY_CHANNEL_ID`
+- `not_in_channel` - Invite bot to channel
+- `invalid_auth` - Check bot token
+- `token_revoked` - Reinstall Slack app
+- `missing_scope` - Add required OAuth scopes

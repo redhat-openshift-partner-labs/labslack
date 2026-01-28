@@ -8,6 +8,7 @@ A Slack bot that listens for direct messages and external webhooks, then relays 
 - **Webhook Relay**: External systems can send messages via authenticated HTTP webhook
 - **Configurable Metadata**: Include or exclude sender info, timestamps, and custom fields
 - **Health Check**: Built-in `/health` endpoint for monitoring
+- **Error Handling**: Automatic retry with exponential backoff for Slack API errors
 - **Production Ready**: Async architecture with aiohttp, suitable for deployment
 
 ## Quick Start
@@ -66,6 +67,8 @@ ngrok http 3000
 | `HOST` | No | `0.0.0.0` | Server bind address |
 | `PORT` | No | `3000` | Server port |
 | `LOG_LEVEL` | No | `INFO` | Logging level |
+| `MAX_RETRIES` | No | `3` | Max retry attempts for Slack API errors |
+| `RETRY_BASE_DELAY` | No | `1.0` | Base delay (seconds) for exponential backoff |
 
 ## API Endpoints
 
@@ -184,6 +187,14 @@ labslack/
 - Verify `message.im` event is subscribed in Slack App settings
 - Check that Event Subscriptions URL is verified
 - Ensure bot has `im:history` and `im:read` scopes
+
+### Messages Failing to Relay (Slack API Errors)
+- Check bot logs for error messages
+- **rate_limited**: Bot will automatically retry with backoff; reduce message volume
+- **channel_not_found**: Verify `RELAY_CHANNEL_ID` is correct
+- **not_in_channel**: Invite bot to the channel: `/invite @YourBotName`
+- **invalid_auth**: Check `SLACK_BOT_TOKEN` is valid and not revoked
+- Adjust `MAX_RETRIES` and `RETRY_BASE_DELAY` if needed
 
 ## License
 
