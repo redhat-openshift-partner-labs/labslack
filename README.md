@@ -157,7 +157,9 @@ labslack/
 
 - [Project Instructions](docs/PROJECT_INSTRUCTIONS.md) - Detailed setup and development guide
 - [Development Plan](docs/DEVELOPMENT_PLAN.md) - Phased development roadmap
+- [Architecture](docs/ARCHITECTURE.md) - System architecture diagrams
 - [Feature Request Template](docs/FEATURE_REQUEST_TEMPLATE.md) - Template for proposing new features
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute to the project
 
 ## Contributing
 
