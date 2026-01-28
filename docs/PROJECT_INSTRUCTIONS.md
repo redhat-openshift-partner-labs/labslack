@@ -45,6 +45,8 @@ labslack/
 │   ├── __init__.py
 │   ├── app.py                      # Main async Bolt app + aiohttp server
 │   ├── config.py                   # Configuration from environment
+│   ├── logging.py                  # Structured JSON logging
+│   ├── metrics.py                  # Observability metrics (Counter, Gauge, Histogram)
 │   ├── handlers/                   # Request handlers
 │   │   ├── __init__.py
 │   │   └── webhook_handler.py      # Webhook endpoint handler
@@ -111,6 +113,7 @@ Navigate to **Event Subscriptions**:
 | `HOST` | No | Server host (default: `0.0.0.0`) |
 | `PORT` | No | Server port (default: `3000`) |
 | `LOG_LEVEL` | No | Logging level (default: `INFO`) |
+| `LOG_JSON` | No | Use JSON log format (default: `true`) |
 | `MAX_RETRIES` | No | Max retry attempts for Slack API errors (default: `3`) |
 | `RETRY_BASE_DELAY` | No | Base delay in seconds for exponential backoff (default: `1.0`) |
 
@@ -123,6 +126,7 @@ Navigate to **Event Subscriptions**:
 | POST | `/slack/events` | Slack event subscription endpoint |
 | POST | `/webhook` | External webhook for message relay |
 | GET | `/health` | Health check endpoint |
+| GET | `/metrics` | Observability metrics (JSON) |
 
 ## Development Workflow
 1. Check `docs/DEVELOPMENT_PLAN.md` for current phase
@@ -143,6 +147,78 @@ docs: documentation changes
 refactor: code refactoring
 chore: maintenance tasks
 ```
+
+## Documentation Guidelines
+
+### Diagrams with Mermaid
+Use [Mermaid](https://mermaid.js.org/) for all diagrams in documentation. Mermaid diagrams are:
+- Written in plain text (version-controllable)
+- Rendered automatically by GitHub, GitLab, and many Markdown viewers
+- Easy to maintain and update
+
+#### Supported Diagram Types
+- **Flowcharts** - Process flows and decision trees
+- **Sequence Diagrams** - Component interactions over time
+- **Class Diagrams** - Object relationships
+- **State Diagrams** - State machines
+- **Entity Relationship Diagrams** - Database schemas
+- **Architecture Diagrams** (C4) - System architecture
+
+#### Example: Architecture Diagram
+```mermaid
+flowchart TB
+    subgraph External
+        User[Slack User]
+        ExtSys[External System]
+    end
+
+    subgraph LabSlack Bot
+        SlackEvents["/slack/events"]
+        Webhook["/webhook"]
+        Health["/health"]
+        Metrics["/metrics"]
+        Relay[MessageRelay]
+    end
+
+    subgraph Slack API
+        SlackAPI[Slack Web API]
+        Channel[Relay Channel]
+    end
+
+    User -->|DM| SlackEvents
+    ExtSys -->|POST + API Key| Webhook
+    SlackEvents --> Relay
+    Webhook --> Relay
+    Relay -->|chat.postMessage| SlackAPI
+    SlackAPI --> Channel
+```
+
+#### Example: Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant User as Slack User
+    participant Bot as LabSlack Bot
+    participant Slack as Slack API
+    participant Channel as Relay Channel
+
+    User->>Bot: Send DM
+    Bot->>Bot: Format message
+    Bot->>Slack: chat.postMessage
+    alt Success
+        Slack->>Channel: Post message
+        Slack-->>Bot: OK response
+    else Rate Limited
+        Slack-->>Bot: rate_limited error
+        Bot->>Bot: Wait (Retry-After)
+        Bot->>Slack: Retry chat.postMessage
+    end
+```
+
+#### Mermaid Syntax Reference
+- [Flowchart syntax](https://mermaid.js.org/syntax/flowchart.html)
+- [Sequence diagram syntax](https://mermaid.js.org/syntax/sequenceDiagram.html)
+- [Class diagram syntax](https://mermaid.js.org/syntax/classDiagram.html)
+- [Live editor](https://mermaid.live/) for testing diagrams
 
 ## Git Policy
 - **NEVER push to remote** - The user will handle all pushes manually
