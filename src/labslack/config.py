@@ -19,6 +19,7 @@ class Config:
     host: str = "0.0.0.0"
     port: int = 3000
     log_level: str = "INFO"
+    log_json: bool = True  # Enable JSON structured logging by default
     max_retries: int = 3
     retry_base_delay: float = 1.0
 
@@ -34,6 +35,7 @@ class Config:
             host=os.getenv("HOST", "0.0.0.0"),
             port=int(os.getenv("PORT", "3000")),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
+            log_json=os.getenv("LOG_JSON", "true").lower() == "true",
             max_retries=int(os.getenv("MAX_RETRIES", "3")),
             retry_base_delay=float(os.getenv("RETRY_BASE_DELAY", "1.0")),
         )
