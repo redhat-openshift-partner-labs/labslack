@@ -1,0 +1,161 @@
+# ===========================================
+# .aiignore - Exclude files from AI assistants
+# ===========================================
+# This file prevents AI coding tools from reading sensitive files.
+# Similar to .gitignore but specifically for AI indexing/context.
+
+# ===========================================
+# Environment and Secrets
+# ===========================================
+.env
+.env.*
+*.env
+.envrc
+
+# API keys and tokens
+*_token
+*_token.txt
+*_key
+*_key.txt
+api_key*
+apikey*
+auth_token*
+access_token*
+secrets.*
+*.secrets
+secret_key*
+
+# ===========================================
+# Private Keys and Certificates
+# ===========================================
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+id_ecdsa
+id_ecdsa.*
+*.ppk
+
+# ===========================================
+# Credentials Files
+# ===========================================
+credentials
+credentials.*
+.htpasswd
+.netrc
+.npmrc
+.pypirc
+
+# Cloud provider credentials
+.aws/
+.azure/
+.gcloud/
+.config/gcloud/
+service-account*.json
+*-credentials.json
+*-sa-key.json
+
+# Slack-specific (this project)
+slack_token*
+bot_token*
+signing_secret*
+webhook_url*
+
+# ===========================================
+# Database and Data Files
+# ===========================================
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+dump.rdb
+*.dump
+
+# ===========================================
+# Logs (may contain sensitive data)
+# ===========================================
+*.log
+logs/
+log/
+
+# ===========================================
+# Backup and Temporary Files
+# ===========================================
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# ===========================================
+# Archives
+# ===========================================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ===========================================
+# Infrastructure State (contains secrets)
+# ===========================================
+*.tfstate
+*.tfstate.*
+.terraform/
+*.vault
+vault.yml
+vault.yaml
+
+# ===========================================
+# Build Artifacts and Dependencies
+# ===========================================
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+build/
+*.egg-info/
+
+# ===========================================
+# IDE and Editor Files
+# ===========================================
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===========================================
+# Test Artifacts
+# ===========================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+
+# ===========================================
+# Docker
+# ===========================================
+docker-compose.override.yml
+.docker/
+
+# ===========================================
+# OS Files
+# ===========================================
+.DS_Store
+Thumbs.db

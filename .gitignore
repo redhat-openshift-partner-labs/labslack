@@ -33,10 +33,13 @@ env/
 *.swo
 *~
 
-# Environment variables
+# Environment variables / Secrets
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+*.env
 
 # Testing
 .pytest_cache/
@@ -59,3 +62,111 @@ Thumbs.db
 
 # Project specific
 *.log
+
+# ===========================================
+# Security - Secrets and Credentials
+# ===========================================
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+id_ecdsa
+id_ecdsa.*
+*.ppk
+
+# API keys and tokens
+*_token
+*_token.txt
+*_key
+*_key.txt
+api_key*
+apikey*
+auth_token*
+access_token*
+refresh_token*
+bearer_token*
+
+# Credentials files
+credentials
+credentials.*
+secrets.*
+*.secrets
+secret_key*
+.htpasswd
+.netrc
+.npmrc
+.pypirc
+
+# Cloud provider credentials
+.aws/
+.azure/
+.gcloud/
+.config/gcloud/
+service-account*.json
+*-credentials.json
+*-sa-key.json
+
+# Slack-specific secrets
+slack_token*
+bot_token*
+signing_secret*
+webhook_url*
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+dump.rdb
+
+# Backup files that might contain secrets
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archives that might contain sensitive data
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Jupyter notebooks (may contain secrets in output)
+.ipynb_checkpoints/
+
+# Docker secrets
+docker-compose.override.yml
+.docker/
+
+# Terraform state (contains secrets)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Ansible vault files
+*.vault
+vault.yml
+vault.yaml
+
+# Node.js (if any JS tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
