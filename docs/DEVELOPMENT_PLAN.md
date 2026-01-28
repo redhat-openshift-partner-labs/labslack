@@ -86,11 +86,16 @@ This document tracks the phased development of the LabSlack bot, following TDD/B
 - [x] Implement async `MessageRelay` service
 - [x] Integration with `AsyncWebClient`
 - [x] Support for both DM and webhook relay
+- [x] Add error handling for Slack API failures
+- [x] Add retry logic with exponential backoff
+- [x] Add logging for relay success/failure
 
-### Remaining Tasks:
-- [ ] Add error handling for Slack API failures
-- [ ] Add retry logic with exponential backoff
-- [ ] Add logging for relay success/failure
+### Key Features:
+- Categorized error handling (retryable vs non-retryable Slack API errors)
+- Exponential backoff with configurable base delay
+- Respects `Retry-After` header for rate limiting
+- Configurable max retries via `MAX_RETRIES` env var
+- Comprehensive logging at DEBUG/INFO/WARNING/ERROR levels
 
 ---
 
