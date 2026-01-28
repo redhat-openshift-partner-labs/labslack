@@ -6,12 +6,14 @@ import logging
 
 from aiohttp import web
 from dotenv import load_dotenv
-from slack_bolt.adapter.aiohttp import to_bolt_request, to_aiohttp_response
+from slack_bolt.adapter.aiohttp import to_aiohttp_response, to_bolt_request
 from slack_bolt.async_app import AsyncApp
 
 from labslack.config import Config
 from labslack.formatters.message_formatter import MessageFormatter
 from labslack.handlers.webhook_handler import WebhookHandler
+from labslack.logging import configure_logging, get_logger
+from labslack.metrics import get_metrics
 from labslack.relay.message_relay import MessageRelay
 
 
@@ -21,9 +23,14 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
         load_dotenv()
         config = Config.from_env()
 
-    # Configure logging
-    logging.basicConfig(level=getattr(logging, config.log_level))
-    logger = logging.getLogger(__name__)
+    # Configure structured logging
+    configure_logging(level=config.log_level, json_format=config.log_json)
+    logger = get_logger("app")
+
+    # Initialize metrics
+    metrics = get_metrics()
+    dm_counter = metrics.counter("messages_received_total", "Total messages received")
+    relay_latency = metrics.histogram("relay_latency_seconds", "Relay operation latency")
 
     # Create async Bolt app
     bolt_app = AsyncApp(
@@ -54,16 +61,24 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
         user_id = event.get("user")
         timestamp = event.get("ts")
 
-        logger.info(f"Received DM from {user_id}: {text[:50]}...")
+        dm_counter.labels(source="dm").inc()
+        logger.info(
+            "Received DM",
+            extra={"user_id": user_id, "text_preview": text[:50], "source": "dm"},
+        )
 
         if config.relay_channel_id:
-            await relay.relay_dm(
-                text=text,
-                user_id=user_id,
-                timestamp=timestamp,
-            )
+            with relay_latency.labels(source="dm").time():
+                await relay.relay_dm(
+                    text=text,
+                    user_id=user_id,
+                    timestamp=timestamp,
+                )
         else:
-            logger.warning("Cannot relay - RELAY_CHANNEL_ID not configured")
+            logger.warning(
+                "Cannot relay - RELAY_CHANNEL_ID not configured",
+                extra={"user_id": user_id},
+            )
 
     # Create webhook handler and aiohttp app
     webhook_handler = WebhookHandler(config, relay)
@@ -79,7 +94,7 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
 
     aiohttp_app.router.add_post("/slack/events", handle_slack_events)
 
-    logger.info("LabSlack bot initialized")
+    logger.info("LabSlack bot initialized", extra={"host": config.host, "port": config.port})
 
     return bolt_app, aiohttp_app
 
@@ -88,29 +103,47 @@ def main() -> None:
     """Run the application."""
     load_dotenv()
 
+    # Initial basic logging until config is loaded
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
-    logger = logging.getLogger(__name__)
+    init_logger = logging.getLogger(__name__)
 
     try:
         config = Config.from_env()
     except KeyError as e:
-        logger.error(f"Missing required environment variable: {e}")
-        logger.error("Required: SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET")
-        logger.error("Optional: RELAY_CHANNEL_ID, WEBHOOK_API_KEY")
+        init_logger.error(f"Missing required environment variable: {e}")
+        init_logger.error("Required: SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET")
+        init_logger.error("Optional: RELAY_CHANNEL_ID, WEBHOOK_API_KEY")
         raise SystemExit(1)
 
     bolt_app, aiohttp_app = create_app(config)
 
-    logger.info(f"Starting LabSlack bot on {config.host}:{config.port}")
-    logger.info(f"Slack events endpoint: http://{config.host}:{config.port}/slack/events")
-    logger.info(f"Webhook endpoint: http://{config.host}:{config.port}/webhook")
-    logger.info(f"Health check: http://{config.host}:{config.port}/health")
+    # Use structured logger after create_app configures logging
+    logger = get_logger("app")
+    logger.info(
+        "Starting LabSlack bot",
+        extra={
+            "host": config.host,
+            "port": config.port,
+            "log_json": config.log_json,
+        },
+    )
+    logger.info(
+        "Endpoints available",
+        extra={
+            "slack_events": f"http://{config.host}:{config.port}/slack/events",
+            "webhook": f"http://{config.host}:{config.port}/webhook",
+            "health": f"http://{config.host}:{config.port}/health",
+            "metrics": f"http://{config.host}:{config.port}/metrics",
+        },
+    )
 
     if not config.relay_channel_id:
-        logger.warning("RELAY_CHANNEL_ID not set - bot will start but cannot relay messages")
+        logger.warning(
+            "RELAY_CHANNEL_ID not set - bot will start but cannot relay messages"
+        )
 
     # Run aiohttp server
     web.run_app(aiohttp_app, host=config.host, port=config.port)

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 from typing import TYPE_CHECKING, Any
 
 from slack_sdk.errors import SlackApiError
+
+from labslack.logging import get_logger
+from labslack.metrics import get_metrics
 
 if TYPE_CHECKING:
     from slack_sdk.web.async_client import AsyncWebClient
@@ -45,7 +47,17 @@ class MessageRelay:
         self.config = config
         self.client = client
         self.formatter = formatter
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger("message_relay")
+        self.metrics = get_metrics()
+        self._relay_counter = self.metrics.counter(
+            "messages_relayed_total", "Total messages relayed"
+        )
+        self._retry_counter = self.metrics.counter(
+            "relay_retries_total", "Total relay retry attempts"
+        )
+        self._error_counter = self.metrics.counter(
+            "relay_errors_total", "Total relay errors"
+        )
 
     async def relay_dm(
         self,
@@ -63,18 +75,29 @@ class MessageRelay:
         Returns:
             True if the message was sent successfully, False otherwise.
         """
-        self.logger.debug(f"Relaying DM from user {user_id}")
+        self.logger.debug(
+            "Relaying DM",
+            extra={"user_id": user_id, "source": "dm"},
+        )
         formatted = self.formatter.format_dm(
             text=text,
             user_id=user_id,
             timestamp=timestamp,
         )
-        success = await self._send_message_with_retry(formatted)
+        success = await self._send_message_with_retry(formatted, source="dm")
 
         if success:
-            self.logger.info(f"Relayed DM from {user_id}")
+            self._relay_counter.labels(source="dm", status="success").inc()
+            self.logger.info(
+                "Relayed DM successfully",
+                extra={"user_id": user_id, "source": "dm"},
+            )
         else:
-            self.logger.error(f"Failed to relay DM from {user_id}")
+            self._relay_counter.labels(source="dm", status="failed").inc()
+            self.logger.error(
+                "Failed to relay DM",
+                extra={"user_id": user_id, "source": "dm"},
+            )
 
         return success
 
@@ -94,18 +117,29 @@ class MessageRelay:
         Returns:
             True if the message was sent successfully, False otherwise.
         """
-        self.logger.debug(f"Relaying webhook from source {source}")
+        self.logger.debug(
+            "Relaying webhook",
+            extra={"webhook_source": source, "source": "webhook"},
+        )
         formatted = self.formatter.format_webhook(
             text=text,
             source=source,
             metadata=metadata,
         )
-        success = await self._send_message_with_retry(formatted)
+        success = await self._send_message_with_retry(formatted, source="webhook")
 
         if success:
-            self.logger.info(f"Relayed webhook from {source}")
+            self._relay_counter.labels(source="webhook", status="success").inc()
+            self.logger.info(
+                "Relayed webhook successfully",
+                extra={"webhook_source": source, "source": "webhook"},
+            )
         else:
-            self.logger.error(f"Failed to relay webhook from {source}")
+            self._relay_counter.labels(source="webhook", status="failed").inc()
+            self.logger.error(
+                "Failed to relay webhook",
+                extra={"webhook_source": source, "source": "webhook"},
+            )
 
         return success
 
@@ -144,19 +178,24 @@ class MessageRelay:
         # Exponential backoff: base_delay * 2^attempt
         return float(self.config.retry_base_delay * (2 ** attempt))
 
-    async def _send_message_with_retry(self, text: str) -> bool:
+    async def _send_message_with_retry(self, text: str, source: str = "unknown") -> bool:
         """Send a message to the relay channel with retry logic.
 
         Implements exponential backoff for retryable errors.
 
         Args:
             text: The formatted message text.
+            source: The source type for metrics labeling.
 
         Returns:
             True if the message was sent successfully, False otherwise.
         """
         if not self.config.relay_channel_id:
-            self.logger.error("Cannot send message: relay_channel_id not configured")
+            self.logger.error(
+                "Cannot send message: relay_channel_id not configured",
+                extra={"source": source},
+            )
+            self._error_counter.labels(source=source, error="no_channel").inc()
             return False
 
         for attempt in range(self.config.max_retries + 1):
@@ -172,21 +211,39 @@ class MessageRelay:
 
                 if not self._is_retryable_error(error_code):
                     self.logger.error(
-                        f"Slack API error (non-retryable): {error_code}"
+                        "Slack API error (non-retryable)",
+                        extra={
+                            "error_code": error_code,
+                            "source": source,
+                            "retryable": False,
+                        },
                     )
+                    self._error_counter.labels(source=source, error=error_code).inc()
                     return False
 
                 if attempt < self.config.max_retries:
                     delay = self._get_retry_delay(attempt, e)
+                    self._retry_counter.labels(source=source, error=error_code).inc()
                     self.logger.warning(
-                        f"Slack API error: {error_code}, "
-                        f"retry {attempt + 1}/{self.config.max_retries} in {delay}s"
+                        "Slack API error, retrying",
+                        extra={
+                            "error_code": error_code,
+                            "attempt": attempt + 1,
+                            "max_retries": self.config.max_retries,
+                            "delay_seconds": delay,
+                            "source": source,
+                        },
                     )
                     await asyncio.sleep(delay)
                 else:
                     self.logger.error(
-                        f"Slack API error after {self.config.max_retries} retries: "
-                        f"{error_code}"
+                        "Slack API error after max retries",
+                        extra={
+                            "error_code": error_code,
+                            "max_retries": self.config.max_retries,
+                            "source": source,
+                        },
                     )
+                    self._error_counter.labels(source=source, error=error_code).inc()
 
         return False

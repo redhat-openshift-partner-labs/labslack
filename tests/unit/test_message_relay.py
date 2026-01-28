@@ -236,16 +236,27 @@ class TestMessageRelayRetry:
 class TestMessageRelayLogging:
     """Tests for logging behavior."""
 
+    @pytest.fixture(autouse=True)
+    def enable_log_propagation(self) -> None:
+        """Enable log propagation for caplog to capture structured logs."""
+        import logging
+
+        logger = logging.getLogger("labslack")
+        original_propagate = logger.propagate
+        logger.propagate = True
+        yield
+        logger.propagate = original_propagate
+
     async def test_logs_success(
         self, relay: MessageRelay, mock_client: AsyncMock, caplog
     ) -> None:
         """Test that successful relay is logged."""
         import logging
 
-        with caplog.at_level(logging.INFO):
+        with caplog.at_level(logging.INFO, logger="labslack.message_relay"):
             await relay.relay_dm(text="Test", user_id="U12345")
 
-        assert any("Relayed DM" in record.message for record in caplog.records)
+        assert any("Relayed DM successfully" in record.message for record in caplog.records)
 
     async def test_logs_failure(
         self, relay: MessageRelay, mock_client: AsyncMock, caplog
@@ -259,10 +270,10 @@ class TestMessageRelayLogging:
             response=MagicMock(data=error_response, headers={}),
         )
 
-        with caplog.at_level(logging.ERROR):
+        with caplog.at_level(logging.ERROR, logger="labslack.message_relay"):
             await relay.relay_dm(text="Test", user_id="U12345")
 
-        assert any("Failed to relay" in record.message for record in caplog.records)
+        assert any("Failed to relay DM" in record.message for record in caplog.records)
 
     async def test_logs_retry_attempts(
         self, relay: MessageRelay, mock_client: AsyncMock, caplog
@@ -279,11 +290,11 @@ class TestMessageRelayLogging:
             {"ok": True},
         ]
 
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.WARNING, logger="labslack.message_relay"):
             with patch("asyncio.sleep", new_callable=AsyncMock):
                 await relay.relay_dm(text="Test", user_id="U12345")
 
-        assert any("retry" in record.message.lower() for record in caplog.records)
+        assert any("retrying" in record.message.lower() for record in caplog.records)
 
 
 class TestMessageRelayWebhook:
