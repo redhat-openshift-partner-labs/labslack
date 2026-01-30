@@ -48,20 +48,38 @@ class TestWarningFormat:
         assert "12:00" in message
 
 
-class TestExpirationFormat:
-    """Tests for expiration notification formatting."""
+class TestExpiredFormat:
+    """Tests for expired notification formatting."""
 
-    def test_expiration_message(self, formatter: NotificationFormatter) -> None:
-        """Test expiration message format."""
+    def test_expired_message(self, formatter: NotificationFormatter) -> None:
+        """Test expired message format."""
         message = formatter.format_message(
             cluster_id="ocp-test-01",
             cluster_name="Test Cluster",
-            notification_type="expiration",
+            notification_type="expired",
         )
 
         assert "ocp-test-01" in message
         assert "Test Cluster" in message
         assert "expired" in message.lower() or "Expired" in message
+        assert "48 hours" in message
+
+
+class TestDecommissionFormat:
+    """Tests for decommission notification formatting."""
+
+    def test_decommission_message(self, formatter: NotificationFormatter) -> None:
+        """Test decommission message format."""
+        message = formatter.format_message(
+            cluster_id="ocp-test-01",
+            cluster_name="Test Cluster",
+            notification_type="decommission",
+        )
+
+        assert "ocp-test-01" in message
+        assert "Test Cluster" in message
+        assert "decommission" in message.lower() or "Decommissioned" in message
+        assert "permanently" in message.lower()
 
 
 class TestCustomMessage:

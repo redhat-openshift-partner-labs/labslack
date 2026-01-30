@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from labslack.config import Config
 
 # Valid notification types
-VALID_NOTIFICATION_TYPES = {"warning", "expiration"}
+VALID_NOTIFICATION_TYPES = {"warning", "expired", "decommission"}
 
 
 class NotifyHandler:

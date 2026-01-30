@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-NotificationType = Literal["warning", "expiration"]
+NotificationType = Literal["warning", "expired", "decommission"]
 
 
 class NotificationFormatter:
@@ -24,7 +24,7 @@ class NotificationFormatter:
         Args:
             cluster_id: Unique cluster identifier.
             cluster_name: Human-readable cluster name.
-            notification_type: Either "warning" or "expiration".
+            notification_type: One of "warning", "expired", or "decommission".
             expiration_date: Optional expiration timestamp.
             custom_message: Optional custom message to use instead of generated.
 
@@ -38,7 +38,9 @@ class NotificationFormatter:
 
         if notification_type == "warning":
             return self._format_warning(cluster_id, cluster_name, expiration_date)
-        return self._format_expiration(cluster_id, cluster_name)
+        elif notification_type == "expired":
+            return self._format_expired(cluster_id, cluster_name)
+        return self._format_decommission(cluster_id, cluster_name)
 
     def _format_with_custom_message(
         self,
@@ -72,14 +74,26 @@ class NotificationFormatter:
             f"Please take action to extend or decommission."
         )
 
-    def _format_expiration(
+    def _format_expired(
         self,
         cluster_id: str,
         cluster_name: str,
     ) -> str:
-        """Format an expiration notification."""
+        """Format an expired notification."""
         return (
             f":rotating_light: *Cluster Expired*\n\n"
             f"*Cluster:* {cluster_name} (`{cluster_id}`)\n\n"
-            f"This cluster has reached its expiration date and will be decommissioned."
+            f"This cluster has expired. You have *48 hours* to extend before decommissioning."
+        )
+
+    def _format_decommission(
+        self,
+        cluster_id: str,
+        cluster_name: str,
+    ) -> str:
+        """Format a decommission notification."""
+        return (
+            f":skull: *Cluster Decommissioned*\n\n"
+            f"*Cluster:* {cluster_name} (`{cluster_id}`)\n\n"
+            f"This cluster has been permanently decommissioned and is no longer available."
         )

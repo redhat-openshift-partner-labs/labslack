@@ -258,6 +258,13 @@ def message_indicates_expired(notify_context: dict) -> None:
     assert "expired" in message or "expir" in message
 
 
+@then("a Slack message should indicate the cluster has been decommissioned")
+def message_indicates_decommissioned(notify_context: dict) -> None:
+    """Check message indicates decommissioning."""
+    message = notify_context.get("slack_message", "").lower()
+    assert "decommission" in message
+
+
 @then(parsers.parse('the Slack message should contain "{text}"'))
 def slack_message_contains(text: str, notify_context: dict) -> None:
     """Check Slack message contains text."""

@@ -24,14 +24,23 @@ Feature: Cluster Expiration Notifications
     And the message should include "ocp-prod-01"
     And the message should indicate "48 hours" until expiration
 
-  Scenario: Send expiration notification
+  Scenario: Send expired notification
     Given a valid API key
     When I POST to "/api/notify" with:
       | cluster_id        | ocp-prod-01                     |
       | cluster_name      | Production Cluster              |
-      | notification_type | expiration                      |
+      | notification_type | expired                         |
     Then the response status should be 200
     And a Slack message should indicate the cluster has expired
+
+  Scenario: Send decommission notification
+    Given a valid API key
+    When I POST to "/api/notify" with:
+      | cluster_id        | ocp-prod-01                     |
+      | cluster_name      | Production Cluster              |
+      | notification_type | decommission                    |
+    Then the response status should be 200
+    And a Slack message should indicate the cluster has been decommissioned
 
   Scenario: Send notification with custom message
     Given a valid API key
