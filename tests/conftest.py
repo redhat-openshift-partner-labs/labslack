@@ -27,6 +27,9 @@ def config() -> Config:
         host="localhost",
         port=3000,
         log_level="DEBUG",
+        database_path=":memory:",
+        notifications_channel_id="C9876543210",
+        opladmins_group_handle="opladmins",
     )
 
 
@@ -42,6 +45,9 @@ def config_no_metadata(config: Config) -> Config:
         host=config.host,
         port=config.port,
         log_level=config.log_level,
+        database_path=config.database_path,
+        notifications_channel_id=config.notifications_channel_id,
+        opladmins_group_handle=config.opladmins_group_handle,
     )
 
 

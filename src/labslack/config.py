@@ -22,6 +22,10 @@ class Config:
     log_json: bool = True  # Enable JSON structured logging by default
     max_retries: int = 3
     retry_base_delay: float = 1.0
+    # Notification settings
+    database_path: str = "data/labslack.db"
+    notifications_channel_id: str | None = None
+    opladmins_group_handle: str = "opladmins"
 
     @classmethod
     def from_env(cls) -> Self:
@@ -38,4 +42,7 @@ class Config:
             log_json=os.getenv("LOG_JSON", "true").lower() == "true",
             max_retries=int(os.getenv("MAX_RETRIES", "3")),
             retry_base_delay=float(os.getenv("RETRY_BASE_DELAY", "1.0")),
+            database_path=os.getenv("DATABASE_PATH", "data/labslack.db"),
+            notifications_channel_id=os.getenv("NOTIFICATIONS_CHANNEL_ID"),
+            opladmins_group_handle=os.getenv("OPLADMINS_GROUP_HANDLE", "opladmins"),
         )

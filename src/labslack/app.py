@@ -10,10 +10,13 @@ from slack_bolt.adapter.aiohttp import to_aiohttp_response, to_bolt_request
 from slack_bolt.async_app import AsyncApp
 
 from labslack.config import Config
+from labslack.database import close_database, init_database
 from labslack.formatters.message_formatter import MessageFormatter
+from labslack.handlers.notify_handler import NotifyHandler
 from labslack.handlers.webhook_handler import WebhookHandler
 from labslack.logging import configure_logging, get_logger
 from labslack.metrics import get_metrics
+from labslack.notifications import NotificationService
 from labslack.relay.message_relay import MessageRelay
 
 
@@ -85,6 +88,27 @@ def create_app(config: Config | None = None) -> tuple[AsyncApp, web.Application]
     aiohttp_app = web.Application()
     aiohttp_app.add_routes(webhook_handler.get_routes())
 
+    # Create notification service and handler
+    notification_service = NotificationService(config, bolt_app.client)
+    notify_handler = NotifyHandler(config, notification_service)
+    aiohttp_app.add_routes(notify_handler.get_routes())
+
+    # Store config for startup/cleanup handlers
+    aiohttp_app["config"] = config
+
+    async def on_startup(app: web.Application) -> None:
+        """Initialize database on startup."""
+        await init_database(app["config"])
+        logger.info("Database initialized", extra={"path": app["config"].database_path})
+
+    async def on_cleanup(app: web.Application) -> None:
+        """Close database on shutdown."""
+        await close_database()
+        logger.info("Database connection closed")
+
+    aiohttp_app.on_startup.append(on_startup)
+    aiohttp_app.on_cleanup.append(on_cleanup)
+
     # Create Slack events handler for aiohttp
     async def handle_slack_events(request: web.Request) -> web.Response:
         """Handle Slack events via aiohttp."""
@@ -135,6 +159,7 @@ def main() -> None:
         extra={
             "slack_events": f"http://{config.host}:{config.port}/slack/events",
             "webhook": f"http://{config.host}:{config.port}/webhook",
+            "notify": f"http://{config.host}:{config.port}/api/notify",
             "health": f"http://{config.host}:{config.port}/health",
             "metrics": f"http://{config.host}:{config.port}/metrics",
         },
