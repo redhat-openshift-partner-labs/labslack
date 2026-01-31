@@ -15,6 +15,7 @@
 - TDD: Write tests first
 - BDD: Use Gherkin feature files
 - Async-first: Use AsyncApp and async/await throughout
+- Use mermaid for documentation diagrams
 
 ## Key Files
 - `docs/PROJECT_INSTRUCTIONS.md` - Full project guide
