@@ -159,3 +159,13 @@ docker-compose.override.yml
 # ===========================================
 .DS_Store
 Thumbs.db
+
+# ===========================================
+# Engineering Journals (AI session logs)
+# ===========================================
+docs/engineering-journals/
+
+# ===========================================
+# Claude Code Session Logs
+# ===========================================
+claude-logs/

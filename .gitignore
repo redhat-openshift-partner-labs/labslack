@@ -170,3 +170,9 @@ yarn.lock
 .cache/
 tmp/
 temp/
+
+# Engineering journals (AI-generated session logs)
+docs/engineering-journals/
+
+# Claude Code session logs
+claude-logs/
